@@ -2,7 +2,7 @@
 header('Content-Type: text/html; charset=utf-8');
 require_once 'db.php';
 
-$stmt = $pdo->query("SELECT name, comment FROM reviews ORDER BY RAND()");  // чтобы повеселей было рандомный вывод из бд отзывов
+$stmt = $pdo->query("SELECT name, comment FROM reviews ORDER BY id DESC");  // чтобы повеселей было рандомный вывод из бд отзывов
 $PATHREVIEWICON = "reviewicon.png";
 
 
