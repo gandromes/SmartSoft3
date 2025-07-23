@@ -1,10 +1,10 @@
 <?php
 header('Content-Type: text/html; charset=utf-8');
-require_once 'db.php';
+require_once 'core/db.php';
 
-$PATHREVIEWICON   = "reviewicon.png";
-$EDITREVIEWICON   = "penicon.png";
-$DELETEREVIEWICON = "trashicon.png";
+$PATHREVIEWICON   = "assets/img/reviewicon.png";
+$EDITREVIEWICON   = "assets/img/penicon.png";
+$DELETEREVIEWICON = "assets/img/trashicon.png";
 
 $stmt = $pdo->query("SELECT id, name, comment FROM reviews ORDER BY id DESC");  // 
 while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {

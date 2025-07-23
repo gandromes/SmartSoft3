@@ -23,8 +23,13 @@ var _ = {
 }
 
 // CONST
-var MINLETTERUSERFORM = 3;
-var SERVERURL = 'http://127.0.0.1';
+var MINLETTERUSERFORM     = 3;
+var SERVERURL             = 'http://127.0.0.1';
+var PATH_REVIEWICON       = "assets/img/reviewicon.png";
+var PATH_EDITREVIEWICON   = "assets/img/penicon.png";
+var PATH_DELETEREVIEWICON = "assets/img/trashicon.png";
+var MAXLENGTH_USERNAME    = 50;
+var MAXLENGTH_TEXT        = 250;
 
 
 // FORM helpblock
@@ -137,149 +142,160 @@ document.getElementById('orderblock').addEventListener('submit', function (e){
 
 })
 
+// REVIEWS - dop
+function validateReviewInput(name, comment, maxNameLen, maxTextLen) {
+    if (!name || !comment) {
+        Swal.showValidationMessage("Пожалуйста, заполните все поля");
+        return false;
+    }
+    if (name.length > maxNameLen) {
+        Swal.showValidationMessage(`Имя не должно превышать ${maxNameLen} символов`);
+        return false;
+    }
+    if (comment.length > maxTextLen) {
+        Swal.showValidationMessage(`Отзыв не должен превышать ${maxTextLen} символов`);
+        return false;
+    }
+    return { name, comment };
+}
 
-    document.addEventListener("DOMContentLoaded", function () {
-    var reviewsBlock = document.querySelector(".reviewsblock");
+// REVIEWS - general
+document.addEventListener("DOMContentLoaded", function () {
+var reviewsBlock = document.querySelector(".reviewsblock");
 
-    // Воспользуемся делегированием на действия: редактировать / удалить
-    reviewsBlock.addEventListener("click", function (e) {
-        var target = e.target;
-        var id = target.dataset.id;
+// Воспользуемся делегированием на действия: редактировать / удалить
+reviewsBlock.addEventListener("click", function (e) {
+    var target = e.target;
+    var id = target.dataset.id;
 
-        if (target.classList.contains("deletebutton")) {
-            // Удаление
-            Swal.fire({
-                title: "Удалить отзыв?",
-                text: "Это действие нельзя отменить!",
-                icon: "warning",
-                showCancelButton: true,
-                confirmButtonText: "Удалить",
-                cancelButtonText: "Отмена",
-                confirmButtonColor: "#d33"
-            }).then(function (result) {
-                if (result.isConfirmed) {
-                    fetch("actions.php", {
-                        method: "POST",
-                        headers: { "Content-Type": "application/x-www-form-urlencoded" },
-                        body: "action=delete&id=" + encodeURIComponent(id)
-                    })
-                    .then(function (res) { return res.text(); })
-                    .then(function (res) {
-                        if (res.trim() === "OK") {
-                            var reviewEl = document.getElementById("review-" + id);
-                            if (reviewEl) reviewEl.remove();
-                            Swal.fire("Удалено!", "Отзыв был удалён.", "success");
-                        } else {
-                            Swal.fire("Ошибка", res, "error");
-                        }
-                    });
-                }
-            });
-
-        } else if (target.classList.contains("editbutton")) {
-            // Редактирование
-            var nameEl = document.getElementById("username-" + id);
-            var textEl = document.getElementById("text-" + id);
-
-            Swal.fire({
-                title: "Редактировать отзыв",
-                html:
-                    '<input id="swal-name" class="swal2-input" placeholder="Имя" value="' + nameEl.textContent + '">' +
-                    '<textarea id="swal-text" class="swal2-textarea" placeholder="Отзыв">' + textEl.textContent + '</textarea>',
-                showCancelButton: true,
-                confirmButtonText: "Сохранить",
-                cancelButtonText: "Отмена",
-                preConfirm: function () {
-                    var name = document.getElementById("swal-name").value.trim();
-                    var comment = document.getElementById("swal-text").value.trim();
-                    if (!name || !comment) {
-                        Swal.showValidationMessage("Имя и отзыв не могут быть пустыми");
-                        return false;
+    if (target.classList.contains("deletebutton")) {
+        // Удаление
+        Swal.fire({
+            title: "Удалить отзыв?",
+            text: "Это действие нельзя отменить!",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonText: "Удалить",
+            cancelButtonText: "Отмена",
+            confirmButtonColor: "#d33"
+        }).then(function (result) {
+            if (result.isConfirmed) {
+                fetch("core/actions.php", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                    body: "action=delete&id=" + encodeURIComponent(id)
+                })
+                .then(function (res) { return res.text(); })
+                .then(function (res) {
+                    if (res.trim() === "OK") {
+                        var reviewEl = document.getElementById("review-" + id);
+                        if (reviewEl) reviewEl.remove();
+                        Swal.fire("Удалено!", "Отзыв был удалён.", "success");
+                    } else {
+                        Swal.fire("Ошибка", res, "error");
                     }
-                    return { name: name, comment: comment };
-                }
-            }).then(function (result) {
-                if (result.isConfirmed) {
-                    fetch("actions.php", {
-                        method: "POST",
-                        headers: { "Content-Type": "application/x-www-form-urlencoded" },
-                        body: "action=edit&id=" + encodeURIComponent(id) +
-                              "&name=" + encodeURIComponent(result.value.name) +
-                              "&comment=" + encodeURIComponent(result.value.comment)
-                    })
-                    .then(function (res) { return res.text(); })
-                    .then(function (res) {
-                        if (res.trim() === "OK") {
-                            nameEl.textContent = result.value.name;
-                            textEl.textContent = result.value.comment;
-                            Swal.fire("Готово", "Отзыв обновлён", "success");
-                        } else {
-                            Swal.fire("Ошибка", res, "error");
-                        }
-                    });
-                }
-            });
-        }
-    });
-
-    // Добавление отзыва
-    var addBtn = document.getElementById("addReviewBtn");
-    if (addBtn) {
-        addBtn.addEventListener("click", function () {
-            Swal.fire({
-                title: 'Добавить отзыв',
-                html:
-                    '<input id="swal-name" class="swal2-input" placeholder="Ваше имя">' +
-                    '<textarea id="swal-comment" class="swal2-textarea" placeholder="Ваш отзыв"></textarea>',
-                confirmButtonText: 'Отправить',
-                showCancelButton: true,
-                cancelButtonText: 'Отмена',
-                preConfirm: function () {
-                    var name = document.getElementById("swal-name").value.trim();
-                    var comment = document.getElementById("swal-comment").value.trim();
-                    if (!name || !comment) {
-                        Swal.showValidationMessage("Пожалуйста, заполните все поля");
-                        return false;
-                    }
-                    return { name: name, comment: comment };
-                }
-            }).then(function (result) {
-                if (result.isConfirmed) {
-                    var name = result.value.name;
-                    var comment = result.value.comment;
-
-                    fetch("actions.php", {
-                        method: "POST",
-                        headers: { "Content-Type": "application/x-www-form-urlencoded" },
-                        body: "action=add&name=" + encodeURIComponent(name) +
-                              "&comment=" + encodeURIComponent(comment)
-                    })
-                    .then(function (res) { return res.json(); })
-                    .then(function (data) {
-                        if (data.status === "OK") {
-                            // Вставка нового отзыва без перезагрузки
-                            var newHTML =
-                                "<div class='review' id='review-" + data.id + "'>" +
-                                    "<img class='reviewicon' src='reviewicon.png' alt='Отзыв'>" +
-                                    "<div class='reviewinfoblock'>" +
-                                        "<p class='reviewusername' id='username-" + data.id + "'>" + data.name + "</p>" +
-                                        "<p class='reviewtext' id='text-" + data.id + "'>" + data.comment + "</p>" +
-                                    "</div>" +
-                                    "<div class='reviewactions'>" +
-                                        "<img src='penicon.png' data-id='" + data.id + "' alt='Редактировать' class='iconbutton editbutton'>" +
-                                        "<img src='trashicon.png' data-id='" + data.id + "' alt='Удалить' class='iconbutton deletebutton'>" +
-                                    "</div>" +
-                                "</div>";
-
-                            var reviewsusersblock = reviewsBlock.children.reviewsusersblock; // получаю блок отзывов
-                            reviewsusersblock.insertAdjacentHTML("afterBegin", newHTML);
-                            Swal.fire("Готово!", "Отзыв добавлен", "success");
-                        } else {
-                            Swal.fire("Ошибка", data.message || "Не удалось добавить отзыв", "error");
-                        }
-                    });
-                }
-            });
+                });
+            }
         });
-        }
+
+    } else if (target.classList.contains("editbutton")) {
+        // Редактирование
+        var nameEl = document.getElementById("username-" + id);
+        var textEl = document.getElementById("text-" + id);
+
+        Swal.fire({
+            title: "Редактировать отзыв",
+            html:
+                '<input id="swal-name" class="swal2-input" placeholder="Имя" maxlength="' + MAXLENGTH_USERNAME + '" value="' + nameEl.textContent + '">' +
+                '<textarea id="swal-text" class="swal2-textarea" placeholder="Отзыв" maxlength="' + MAXLENGTH_TEXT + '">' + textEl.textContent + '</textarea>',
+            showCancelButton: true,
+            confirmButtonText: "Сохранить",
+            cancelButtonText: "Отмена",
+            preConfirm: function () {
+                const name = document.getElementById("swal-name").value.trim();
+                const comment = document.getElementById("swal-text").value.trim();
+                return validateReviewInput(name, comment, MAXLENGTH_USERNAME, MAXLENGTH_TEXT);
+            }
+        }).then(function (result) {
+            if (result.isConfirmed) {
+                fetch("core/actions.php", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                    body: "action=edit&id=" + encodeURIComponent(id) +
+                            "&name=" + encodeURIComponent(result.value.name) +
+                            "&comment=" + encodeURIComponent(result.value.comment)
+                })
+                .then(function (res) { return res.text(); })
+                .then(function (res) {
+                    if (res.trim() === "OK") {
+                        nameEl.textContent = result.value.name;
+                        textEl.textContent = result.value.comment;
+                        Swal.fire("Готово", "Отзыв обновлён", "success");
+                    } else {
+                        Swal.fire("Ошибка", res, "error");
+                    }
+                });
+            }
+        });
+    }
+});
+
+// Добавление отзыва
+var addBtn = document.getElementById("addReviewBtn");
+if (addBtn) {
+    addBtn.addEventListener("click", function () {
+        Swal.fire({
+            title: 'Добавить отзыв',
+            html:
+                '<input id="swal-name" class="swal2-input" placeholder="Ваше имя" maxlength="' + MAXLENGTH_USERNAME + '">' +
+                '<textarea id="swal-comment" class="swal2-textarea" placeholder="Ваш отзыв" maxlength="' + MAXLENGTH_TEXT + '"></textarea>',
+
+            confirmButtonText: 'Отправить',
+            showCancelButton: true,
+            cancelButtonText: 'Отмена',
+            preConfirm: function () {
+                const name = document.getElementById("swal-name").value.trim();
+                const comment = document.getElementById("swal-comment").value.trim();
+                return validateReviewInput(name, comment, MAXLENGTH_USERNAME, MAXLENGTH_TEXT);
+            }
+        }).then(function (result) {
+            if (result.isConfirmed) {
+                var name = result.value.name;
+                var comment = result.value.comment;
+
+                fetch("core/actions.php", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                    body: "action=add&name=" + encodeURIComponent(name) +
+                            "&comment=" + encodeURIComponent(comment)
+                })
+                .then(function (res) { return res.json(); })
+                .then(function (data) {
+                    if (data.status === "OK") {
+                        // Вставка нового отзыва без перезагрузки
+                        var newHTML = `
+                            <div class="review" id="review-${data.id}">
+                                <img class="reviewicon" src="${PATH_REVIEWICON}" alt="Отзыв">
+                                <div class="reviewinfoblock">
+                                    <p class="reviewusername" id="username-${data.id}">${data.name}</p>
+                                    <p class="reviewtext" id="text-${data.id}">${data.comment}</p>
+                                </div>
+                                <div class="reviewactions">
+                                    <img src="${PATH_EDITREVIEWICON}" data-id="${data.id}" alt="Редактировать" class="iconbutton editbutton">
+                                    <img src="${PATH_DELETEREVIEWICON}" data-id="${data.id}" alt="Удалить" class="iconbutton deletebutton">
+                                </div>
+                            </div>
+                        `;
+
+                        var reviewsusersblock = reviewsBlock.children.reviewsusersblock; // получаю блок отзывов
+                        reviewsusersblock.insertAdjacentHTML("afterBegin", newHTML);
+                        Swal.fire("Готово!", "Отзыв добавлен", "success");
+                    } else {
+                        Swal.fire("Ошибка", data.message || "Не удалось добавить отзыв", "error");
+                    }
+                });
+            }
+        });
     });
+    }
+});

@@ -1,5 +1,5 @@
 <?php
-require_once 'db.php';
+require_once 'core/db.php';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $action = $_POST['action'] ?? '';

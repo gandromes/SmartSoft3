@@ -10,6 +10,6 @@
             </div>
         </div>
         
-        <?php include 'list.php'; ?>
+        <?php include 'includes/list.php'; ?>
     </div>        
 <!--  Блок content -->

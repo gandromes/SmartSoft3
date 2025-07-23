@@ -1,10 +1,10 @@
 <!-- Блок layout -->
 <div class="formsblock">
     <?php
-        require_once("helpblock.php");
-        require_once("orderblock.php");
+        require_once("includes/helpblock.php");
+        require_once("includes/orderblock.php");
     ?>
 </div>
 
-<?php include 'content.php'; ?>
+<?php include 'includes/content.php'; ?>
 <!-- Блок layout -->
