@@ -2,17 +2,25 @@
 header('Content-Type: text/html; charset=utf-8');
 require_once 'db.php';
 
-$stmt = $pdo->query("SELECT name, comment FROM reviews ORDER BY id DESC");  // чтобы повеселей было рандомный вывод из бд отзывов
-$PATHREVIEWICON = "reviewicon.png";
+$PATHREVIEWICON   = "reviewicon.png";
+$EDITREVIEWICON   = "penicon.png";
+$DELETEREVIEWICON = "trashicon.png";
 
-
-
+$stmt = $pdo->query("SELECT id, name, comment FROM reviews ORDER BY id DESC");  // 
 while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-    echo "<div class='review'>
+    $id        = $row['id'];
+    $username  = htmlspecialchars($row['name']);
+    $text      = htmlspecialchars($row['comment']);
+
+    echo "<div class='review' id='review-$id'>
             <img class='reviewicon' src='$PATHREVIEWICON' alt='Отзыв'>
             <div class='reviewinfoblock'>
-                <p class='reviewusername'>{$row['name']}</p>
-                <p class='reviewtext'>{$row['comment']}</p>
+                <p class='reviewusername' id='username-$id'>$username</p>
+                <p class='reviewtext' id='text-$id'>$text</p>
+            </div>
+            <div class='reviewactions'>
+                <img src='$EDITREVIEWICON' data-id='$id' alt='Редактировать' class='iconbutton editbutton'>
+                <img src='$DELETEREVIEWICON' data-id='$id' alt='Удалить' class='iconbutton deletebutton'>
             </div>
           </div>";
 }

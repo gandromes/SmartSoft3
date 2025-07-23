@@ -1,5 +1,7 @@
 :root {
+  --color-black: rgb(0,0,0);
   --color-halfblack: rgba(0, 0, 0, 0.5);
+  --color-smoothblack: rgb(39, 39, 39);
   --color-silver: #ccc;
   --color-blacksilver: #b0b0b0;
 }
@@ -129,14 +131,22 @@
 
 
 /* БЛОК ОТЗЫВОВ */
+.reviewsblock {
+    /* display: flex; */
+    /* flex-wrap: wrap; */
+}
+.reviewheader {
+    display: flex;
+    justify-content: space-between;
+    margin: 0 50px 0 50px;
+}
 .reviewsusersblock {
     display: flex;
     flex-wrap: wrap;
-    justify-content: space-between;
-    margin: 0 100px 180px 100px;
-}
-.reviewstitles {
-    margin: 0 0 0 50px;
+    /* width: 100%; */
+    /* justify-content: space-between; */
+    margin: 0 90px 180px 100px;
+    gap: 2.5%;
 }
 .reviewstitle {
     margin-bottom: 0;
@@ -147,11 +157,13 @@
     font-weight: 400;
 }
 .review {
-    width: 30%;
+    width: 31.66%;
     box-sizing: border-box;
     margin-bottom: 20px;
     display: flex;
     align-items: flex-start;
+    justify-content: space-between;
+    gap: 5px; /* отступ между инфо и действиями */
 }
 .reviewusername, .reviewtext {
     margin: 0;
@@ -176,6 +188,59 @@
     color: var(--color-halfblack);
 }
 
+/* БЛОК ОТЗЫВОВ - actions */
+.reviewinfoblock {
+    flex: 1; /* занимает всё оставшееся место */
+}
+.reviewactions {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    flex-shrink: 0; /* не сжимается */
+}
+.iconbutton {
+    width: 19px;
+    height: 19px;
+    cursor: pointer;
+    opacity: 0.7;
+    transition: opacity 0.2s, transform 0.1s;
+    margin-bottom: 5px;
+}
+
+.iconbutton:hover {
+    opacity: 1;
+    transform: scale(1.1);
+}
+
+.iconbutton:active {
+    transform: scale(0.95);
+}
+
+/* БЛОК ОТЗЫВОВ - addrewiew */
+.add-review-container {
+    align-self: end;
+    margin-bottom: 45px;
+}
+.add-review-btn {
+    /* margin-top: 25px; */
+    background-color: var(--color-black);
+    color: white;
+    padding: 6px 18px;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    cursor: pointer;
+    opacity: 0.8;
+    transition: opacity 0.2s, transform 0.1s;
+}
+.add-review-btn:hover {
+    opacity: 1;
+}
+.add-review-btn:active {
+    transform: scale(0.95);
+}
+
+
 
 /* настройки */
 label {
@@ -194,7 +259,7 @@ label {
         margin: 0 40px 120px 40px;
     }
     .review {
-        width: 45%;
+        width: 48.7%;
     }
     .orderblock {
         margin-bottom: 60px;
@@ -204,6 +269,9 @@ label {
     }
     .forminnnerblock select option {
         font-size: 13px;
+    }
+    .add-review-container {
+        margin-bottom: 41px;
     }
 }
 @media screen and (max-width: 768px) {
@@ -253,15 +321,36 @@ label {
     .forminnnerblock select option {
         font-size: 13px;
     }
+    .reviewheader {
+        margin: 0px;
+    }
+}
+@media screen and (max-width: 620px) {
+    
+    .reviewsubtitle {
+        margin-bottom: 20px;
+    }
+    .add-review-container {
+        margin-bottom: 22px;
+    }
 }
 @media screen and (max-width: 480px) {
+    .reviewheader {
+        display: block;
+    }
+    .add-review-btn {
+        font-size: 14px;
+        width: 100%;
+    }
     .maintitle {
         font-size: 1.25rem;
         margin: 50px 0 40px 0;
     }
     .reviewstitles {
-        margin: 0 0 20px 0;
         text-align: center;
+    }
+    .reviewheader {
+        margin: 0 20px 0 20px;
     }
     .forminnnerblock {
         padding: 15px;
@@ -302,7 +391,10 @@ label {
         margin-bottom: 0px !important; /* не круто */
     }
     .reviewsubtitle {
-        margin-bottom: 25px;
+        margin-bottom: 11px;
+    }
+    .add-review-container {
+        margin-bottom: 30px;
     }
     .forminnnerblock input[type="submit"] {
         margin-top: 20px;
